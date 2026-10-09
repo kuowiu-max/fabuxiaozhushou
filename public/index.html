@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#274b42">
+  <meta name="description" content="输入门店，整理有来源的素材、自己的原图和文案草稿。手机可用，支持复制提示词到任意 AI 软件。">
+  <title>发布小助手 · 门店素材工作台</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="./" aria-label="发布小助手首页"><img src="./icon.svg" alt="" width="40" height="40"><span><strong>发布小助手</strong><small>让素材有条理，让表达更轻松</small></span></a>
+    <div class="header-actions"><span id="save-status" class="save-status" role="status"><i></i>已保存到本机</span><button id="reset" class="button ghost small">新建草稿</button></div>
+  </header>
+  <main class="workspace">
+    <section class="intro">
+      <div><p class="eyebrow">YOUR CREATIVE DESK</p><h1>从一家门店，开始一篇好草稿<span>。</span></h1><p class="intro-copy">找到参考，整理事实，把自己的表达留在文案里。</p></div>
+      <div class="intro-note"><span class="note-star">✳</span><span>灵感有出处<br><strong>创作有自己的声音</strong></span></div>
+    </section>
+    <div class="steps" aria-label="创作流程"><span><b>01</b> 找门店</span><i></i><span><b>02</b> 整理素材</span><i></i><span><b>03</b> 完成草稿</span></div>
+    <div class="layout">
+      <aside class="store-column">
+        <section class="card store-card">
+          <div class="section-heading"><span class="section-mark">01</span><h2>这次写哪家店？</h2></div>
+          <label for="store">门店名称 <span class="required">*</span></label>
+          <input id="store" maxlength="120" autocomplete="off" placeholder="例如：门店名称 + 分店">
+          <label for="city">所在城市</label><input id="city" maxlength="80" autocomplete="address-level2" placeholder="填写城市，减少同名门店">
+          <button id="find-store" class="button primary full"><span aria-hidden="true">⌕</span> 查找门店素材</button>
+          <p class="field-note">打开平台搜索，找到相关页面后，将链接和资料加入工作台。</p>
+          <div id="search-options" class="search-options" hidden>
+            <a id="search-xhs" target="_blank" rel="noopener noreferrer"><span class="platform xhs">红</span><span>去小红书搜索<small>在新页面查看结果</small></span><span>↗</span></a>
+            <a id="search-dp" target="_blank" rel="noopener noreferrer"><span class="platform dp">评</span><span>查找大众点评页面<small>通过搜索引擎查找</small></span><span>↗</span></a>
+          </div>
+          <div class="divider"></div>
+          <label for="style">文案风格</label><select id="style"><option>自然介绍</option><option>简洁清单</option><option>轻松分享</option></select>
+          <label class="checkbox-label"><input id="visited" type="checkbox"><span>我已实际到店，下面包含我的真实体验</span></label>
+        </section>
+        <section class="ai-card">
+          <span class="ai-symbol">✦</span><h3>和你常用的 AI 一起写</h3><p>复制整理好的资料和提示词，带到豆包、DeepSeek 或 ChatGPT。</p><button id="copy-prompt" class="button light full">复制 AI 提示词 <span>↗</span></button>
+        </section>
+        <p class="privacy-note">素材保存在当前设备和浏览器。清除浏览器数据会删除草稿，记得导出备份。</p>
+      </aside>
+      <div class="material-column">
+        <section class="card facts-card">
+          <div class="section-heading spread"><div><span class="section-mark">02</span><h2>把已确认的信息放在这里</h2></div><span class="pill">创作依据</span></div>
+          <label class="sr-only" for="facts">已核实的门店信息或实际体验</label>
+          <textarea id="facts" maxlength="5000" rows="7" placeholder="可以写：门店地址、主营品类、营业时间，以及你亲自体验过的产品、价格和感受。&#10;&#10;未核实的评价和推荐，放到下方的参考资料中。"></textarea>
+          <div class="field-footer"><span>文案只依据这里的事实生成</span><span id="fact-count">0 / 5000</span></div>
+        </section>
+        <section class="card source-card">
+          <div class="section-heading spread"><div><h2>参考资料</h2><span id="source-count" class="count">0</span></div><button id="add-source" class="button ghost small">＋ 添加资料</button></div>
+          <div id="source-list" class="source-list"></div>
+          <div id="source-empty" class="empty-state compact"><span class="empty-symbol">⌁</span><p>好灵感，值得留下出处</p><small>保存原帖链接，补充参考内容或门店资料</small></div>
+        </section>
+        <section class="card photo-card">
+          <div class="section-heading spread"><div><h2>图片素材</h2><span id="photo-count" class="count">0</span></div><span class="subtle-label">保留原图</span></div>
+          <label class="upload-zone" id="drop-zone" for="photos"><span class="upload-icon">＋</span><strong>添加你的照片</strong><span>上传自有或已获授权的 JPG、PNG、WebP 原图</span><small>可多选 · 单张不超过 10 MB · 最多 20 张</small></label>
+          <input id="photos" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          <div id="photo-list" class="photo-grid"></div>
+          <p class="field-note image-note">导出不添加水印；上传图片已有的水印会保留。外站图片请先取得授权原图。</p>
+        </section>
+      </div>
+      <aside class="draft-column">
+        <section class="card draft-card">
+          <div class="section-heading spread"><div><span class="section-mark">03</span><h2>你的文案草稿</h2></div><span id="draft-mode" class="pill">待整理</span></div>
+          <div class="generate-controls"><label for="provider">整理方式</label><select id="provider"><option value="template">资料模板 · 无需 AI 账号</option></select><button id="generate" class="button primary full">✦ 整理成草稿</button></div>
+          <div id="draft-empty" class="empty-state draft-empty"><div class="paper-illustration"><span></span><span></span><span></span><b>✦</b></div><h3>好内容，从真实资料开始</h3><p>填好门店与已确认的信息，<br>草稿就会在这里出现。</p></div>
+          <div id="draft-content" hidden>
+            <label for="draft-title">标题</label><input id="draft-title" maxlength="120" placeholder="输入标题">
+            <label for="draft-body">正文</label><textarea id="draft-body" rows="12" maxlength="6000"></textarea>
+            <label for="draft-tags">话题</label><input id="draft-tags" placeholder="用空格分隔，例如：咖啡 城市探店">
+            <div id="checks-box" class="checks-box"><strong>发布前再确认</strong><ul id="checks-list"></ul></div>
+            <div class="draft-actions"><button id="copy-draft" class="button secondary">复制文案</button><button id="share-draft" class="button secondary">分享</button></div>
+          </div>
+          <button id="export" class="button outline full export-button">↓ 导出素材包</button><p class="export-note">文案、来源记录和原图，打包带走</p>
+          <details class="paste-ai"><summary>已有 AI 写好的文案？</summary><label for="ai-result">粘贴 AI 返回的文案</label><textarea id="ai-result" rows="4" placeholder="首行作为标题，其余内容作为正文"></textarea><button id="use-ai-result" class="button secondary full">放入草稿</button></details>
+        </section>
+      </aside>
+    </div>
+    <footer class="footer"><span>发布小助手 <span class="footer-dot">·</span> 把时间留给创作</span><span>通用版 v0.1</span></footer>
+  </main>
+  <dialog id="source-dialog"><form id="source-form"><div class="dialog-heading"><h2>添加参考资料</h2><button id="close-dialog" class="icon-button" type="button" aria-label="关闭">×</button></div><p class="field-note">记录出处与参考内容，方便核对和回看。</p><label for="source-label">资料名称</label><input id="source-label" maxlength="120" placeholder="例如：门店官方介绍"><label for="source-url">原文链接</label><input id="source-url" type="url" maxlength="2000" placeholder="https://…"><label for="source-notes">参考内容</label><textarea id="source-notes" maxlength="3000" rows="5" placeholder="粘贴相关资料，或写下参考要点"></textarea><button class="button primary full" type="submit">保存资料</button></form></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

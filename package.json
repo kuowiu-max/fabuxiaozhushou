@@ -1,0 +1,12 @@
+{
+  "name": "publish-helper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "手机端门店素材整理与 AI 文案工作台",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test test/*.test.mjs"
+  }
+}
