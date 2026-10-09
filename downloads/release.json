@@ -1,14 +1,14 @@
 {
   "name": "publish-helper",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "files": {
     "publish-helper.zip": {
-      "bytes": 44592,
-      "sha256": "dbe131507ba3c6dc1bce94b1139330fbcddc3ffaabbad69c4b67961e6c029bbb"
+      "bytes": 46036,
+      "sha256": "944b7aebdacf9947411d264ec5c6aa9a20f5817bf21276e0446177de59014bd8"
     },
     "publish-helper.md": {
-      "bytes": 27876,
-      "sha256": "18627ac39624e594c288357f6ffb582f7d7340aedf82cf7492ddeaa1cdac36eb"
+      "bytes": 29152,
+      "sha256": "1f4a30eb3bb5ef2d33f9dcfc5a234aff29f16df67e84258cdcae5e19304e75cc"
     }
   }
 }
