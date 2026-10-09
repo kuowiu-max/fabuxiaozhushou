@@ -1,5 +1,5 @@
 {
   "name": "publish-helper",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "输入门店名，以消费者视角生成自然文案、获取公开评论照片并核对大众点评分成活动规则。"
 }
