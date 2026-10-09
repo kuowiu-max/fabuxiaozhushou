@@ -7,7 +7,7 @@ import sys
 import unittest
 from zipfile import ZipFile
 
-SCRIPT = Path(__file__).resolve().parents[1] / "skills/publish-helper/scripts/package_materials.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "skills/发布小助手/scripts/package_materials.py"
 SPEC = importlib.util.spec_from_file_location("package_materials", SCRIPT)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)

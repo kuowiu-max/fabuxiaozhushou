@@ -6,7 +6,7 @@ import unittest
 from urllib.error import HTTPError
 import json
 
-SCRIPT = Path(__file__).resolve().parents[1] / "skills/publish-helper/scripts/fetch_photos.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "skills/发布小助手/scripts/fetch_photos.py"
 SPEC = importlib.util.spec_from_file_location("fetch_photos", SCRIPT)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)

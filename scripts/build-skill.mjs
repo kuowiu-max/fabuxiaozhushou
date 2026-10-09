@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { makeZip } from '../public/zip.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const skill = path.join(root, 'skills/publish-helper');
+const skillName = '发布小助手';
+const skill = path.join(root, 'skills', skillName);
 export async function skillFiles(directory = skill, prefix = '') {
   const result = [];
   for (const name of (await readdir(directory)).sort()) {
@@ -22,17 +23,20 @@ export async function skillFiles(directory = skill, prefix = '') {
 export async function buildOutputs() {
   const files = await skillFiles();
   const main = files.find(file => file.name === 'SKILL.md')?.data.toString('utf8');
-  if (!main?.startsWith('---\nname: publish-helper\n') || !/\ndescription: .+\n/.test(main)) throw new Error('技能 frontmatter 不完整。');
-  const zip = Buffer.from(await (await makeZip(files.map(file => ({ name: `publish-helper/${file.name}`, data: new Blob([file.data]) })), { date: new Date(2020, 0, 1) })).arrayBuffer());
+  if (!main?.startsWith(`---\nname: ${skillName}\n`) || !/\ndescription: .+\n/.test(main)) throw new Error('技能 frontmatter 不完整。');
+  const zip = Buffer.from(await (await makeZip(files.map(file => ({ name: `${skillName}/${file.name}`, data: new Blob([file.data]) })), { date: new Date(2020, 0, 1) })).arrayBuffer());
   const body = main.replace(/^---\n[\s\S]*?\n---\n/, '').trim();
   const reference = files.filter(file => file.name.startsWith('references/') && file.name.endsWith('.md')).map(file => file.data.toString('utf8')).join('\n\n');
   const prompt = Buffer.from(`请把以下内容作为本次对话的工作方式，接下来我只发门店名，需要时补充城市。本文是对话指令，不会新增你没有的工具。本单文件未安装本地脚本；未另行安装完整技能目录时，使用你已有的图片和文件工具，不尝试调用不存在的本地脚本。\n\n${body}\n\n以下为随附参考规则，不需要从其他文件读取：\n\n${reference}\n\n若只加载文件还没有门店，只回复：“发布小助手已准备好，发门店名称即可；有同名店时加上城市或分店。”\n`, 'utf8');
   const version = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8')).version;
-  const metadata = Buffer.from(JSON.stringify({ name: 'publish-helper', version, files: {
+  const metadata = Buffer.from(JSON.stringify({ name: skillName, version, files: {
+    '发布小助手.zip': { bytes: zip.length, sha256: createHash('sha256').update(zip).digest('hex') },
+    '发布小助手.md': { bytes: prompt.length, sha256: createHash('sha256').update(prompt).digest('hex') },
     'publish-helper.zip': { bytes: zip.length, sha256: createHash('sha256').update(zip).digest('hex') },
     'publish-helper.md': { bytes: prompt.length, sha256: createHash('sha256').update(prompt).digest('hex') }
   } }, null, 2) + '\n');
   return new Map([
+    ['downloads/发布小助手.zip', zip], ['downloads/发布小助手.md', prompt],
     ['downloads/publish-helper.zip', zip], ['downloads/publish-helper.md', prompt],
     ['downloads/发布小助手提示词.md', prompt], ['downloads/release.json', metadata]
   ]);
