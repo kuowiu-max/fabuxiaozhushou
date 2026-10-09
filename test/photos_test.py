@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from urllib.error import HTTPError
 import json
 
@@ -58,6 +59,38 @@ class PhotoFetchTest(unittest.TestCase):
         self.spec["photos"] *= 2
         result = MODULE.fetch(self.spec, self.output, self.opener(lambda req, _: Response(self.image, req.full_url)))
         self.assertEqual(len(result["images"]), 1)
+        self.assertEqual(result["skipped_duplicates"], 1)
+
+    def test_same_image_at_different_urls_is_skipped_and_replaced(self):
+        photo = self.spec["photos"][0]
+        self.spec["photos"] = [{**photo, "url": f"https://img.meituan.net/{i}.png"} for i in range(8)]
+        calls = []
+        def respond(req, _):
+            index = int(req.full_url.rsplit('/', 1)[1].split('.')[0])
+            calls.append(index)
+            data = self.image + str(max(0, index - 1)).encode()
+            return Response(data, req.full_url)
+        result = MODULE.fetch(self.spec, self.output, self.opener(respond))
+        self.assertEqual(len(result["images"]), 6)
+        self.assertEqual(result["skipped_duplicates"], 1)
+        self.assertEqual(calls, list(range(7)))
+        files = [Path(image["path"]).read_bytes() for image in result["images"]]
+        self.assertEqual(len(set(files)), 6)
+        self.assertEqual(result["downloaded_bytes"], sum(len(self.image + str(max(0, i - 1)).encode()) for i in calls))
+
+    def test_duplicate_downloads_count_towards_total_byte_limit(self):
+        photo = self.spec["photos"][0]
+        self.spec["photos"] = [{**photo, "url": f"https://img.meituan.net/{i}.png"} for i in range(4)]
+        calls = []
+        def respond(req, _):
+            calls.append(req.full_url)
+            return Response(self.image, req.full_url)
+        with patch.object(MODULE, "MAX_TOTAL_BYTES", len(self.image) * 2):
+            result = MODULE.fetch(self.spec, self.output, self.opener(respond))
+        self.assertEqual(len(result["images"]), 1)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(result["skipped_duplicates"], 1)
+        self.assertIn("总下载大小", result["errors"][0]["error"])
 
     def test_blocked_page_is_not_saved_as_photo(self):
         def denied(request, _):
@@ -81,7 +114,7 @@ class PhotoFetchTest(unittest.TestCase):
     def test_no_more_than_six_photos_are_downloaded(self):
         photo = self.spec["photos"][0]
         self.spec["photos"] = [{**photo, "url": f"https://img.meituan.net/{i}.png"} for i in range(10)]
-        result = MODULE.fetch(self.spec, self.output, self.opener(lambda req, _: Response(self.image, req.full_url)))
+        result = MODULE.fetch(self.spec, self.output, self.opener(lambda req, _: Response(self.image + req.full_url.encode(), req.full_url)))
         self.assertEqual(len(result["images"]), 6)
 
     def test_large_image_is_rejected(self):

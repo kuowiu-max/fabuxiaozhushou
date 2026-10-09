@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fetch already-discovered public review photos; no page scraping or authentication."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -58,10 +59,13 @@ def fetch(spec, output, opener=None):
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir()
     opener = opener or build_opener(PublicImageRedirects())
-    result = {"store": store, "images": [], "sources": [], "errors": []}
-    seen, total = set(), 0
+    result = {"store": store, "images": [], "sources": [], "errors": [], "skipped_duplicates": 0, "downloaded_bytes": 0}
+    seen, image_hashes, total = set(), set(), 0
     for index, photo in enumerate(photos[:20], 1):
         if len(result["images"]) >= 6:
+            break
+        if total >= MAX_TOTAL_BYTES:
+            result["errors"].append({"photo": index, "error": "照片总下载大小已达 50 MB。"})
             break
         try:
             if not isinstance(photo, dict):
@@ -69,6 +73,7 @@ def fetch(spec, output, opener=None):
             url = public_url(photo.get("url"), IMAGE_DOMAINS)
             source_url = public_url(photo.get("source_url"), SOURCE_DOMAINS)
             if url in seen:
+                result["skipped_duplicates"] += 1
                 continue
             seen.add(url)
             request = Request(url, headers={"User-Agent": "PublishHelper/0.3", "Referer": source_url})
@@ -81,13 +86,18 @@ def fetch(spec, output, opener=None):
                 if limit <= 0:
                     raise ValueError("照片总大小已达 50 MB。")
                 data = response.read(limit + 1)
+                total += len(data)
                 if len(data) > limit:
                     raise ValueError("单张图片超过 10 MB，或照片总大小超过 50 MB。")
             suffix = extension(data)
+            digest = hashlib.sha256(data).digest()
+            if digest in image_hashes:
+                result["skipped_duplicates"] += 1
+                continue
             filename = f"{len(result['images']) + 1:02d}-评论照片.{suffix}"
             path = output / filename
             path.write_bytes(data)
-            total += len(data)
+            image_hashes.add(digest)
             caption = str(photo.get("caption", ""))[:300]
             result["images"].append({"path": str(path), "kind": "reference-photo", "source_url": source_url, "caption": caption})
             if source_url not in [source["url"] for source in result["sources"]]:
@@ -98,6 +108,7 @@ def fetch(spec, output, opener=None):
             result["errors"].append({"photo": index, "error": "网络或文件访问失败。"})
         except ValueError as error:
             result["errors"].append({"photo": index, "error": str(error)})
+    result["downloaded_bytes"] = total
     report = output / "照片来源.json"
     report.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf8")
     return result
