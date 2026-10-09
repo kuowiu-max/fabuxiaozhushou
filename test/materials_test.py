@@ -2,6 +2,8 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import subprocess
+import sys
 import unittest
 from zipfile import ZipFile
 
@@ -50,6 +52,19 @@ class MaterialPackTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "已存在"):
             MODULE.package(self.input, self.output)
         self.assertEqual(self.output.read_bytes(), b"existing-user-file")
+
+    def test_content_only_cli_exports_text_and_photos_without_source_records(self):
+        self.spec["sources"][0]["url"] = "https://www.meituan.com/test-store"
+        self.spec["images"][0].update(kind="reference-photo", source_url="https://www.meituan.com/test-store")
+        self.write_input()
+        result = subprocess.run([sys.executable, str(SCRIPT), "--input", str(self.input), "--output", str(self.output), "--content-only"], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["sources"], 0)
+        with ZipFile(self.output) as archive:
+            self.assertEqual(set(archive.namelist()), {"文案.txt", "图片/01.png"})
+            self.assertEqual(archive.read("图片/01.png"), self.image)
+            self.assertIn("不代表真实门店", archive.read("文案.txt").decode())
+            self.assertNotIn("meituan.com", archive.read("文案.txt").decode())
 
     def test_reference_images_are_not_exported_as_publishable_originals(self):
         self.spec["images"][0]["kind"] = "reference-only"

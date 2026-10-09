@@ -92,7 +92,7 @@ def collect(spec, base):
     return metadata, image_files
 
 
-def package(input_path, output_path):
+def package(input_path, output_path, *, content_only=False):
     input_path, output_path = Path(input_path).resolve(), Path(output_path).absolute()
     if output_path.exists() or output_path.is_symlink():
         raise ValueError("输出文件已存在，请换一个文件名。")
@@ -110,24 +110,28 @@ def package(input_path, output_path):
     try:
         with ZipFile(temporary, "w", compression=ZIP_DEFLATED) as archive:
             archive.writestr("文案.txt", draft)
-            archive.writestr("来源.txt", source_text)
-            archive.writestr("素材记录.json", json.dumps(metadata, ensure_ascii=False, indent=2))
-            for filename, data in images:
+            if not content_only:
+                archive.writestr("来源.txt", source_text)
+                archive.writestr("素材记录.json", json.dumps(metadata, ensure_ascii=False, indent=2))
+            for index, (filename, data) in enumerate(images, 1):
+                if content_only:
+                    filename = f"图片/{index:02d}{Path(filename).suffix}"
                 archive.writestr(filename, data, compress_type=ZIP_STORED)
         # Atomic creation prevents accidentally replacing an existing material pack.
         os.link(temporary, output_path)
     finally:
         Path(temporary).unlink(missing_ok=True)
-    return {"output": str(output_path), "images": len(images), "sources": len(metadata["sources"])}
+    return {"output": str(output_path), "images": len(images), "sources": 0 if content_only else len(metadata["sources"])}
 
 
 def main():
     parser = argparse.ArgumentParser(description="打包文案、来源和已有原图，不联网或编辑图片。")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--content-only", action="store_true", help="只导出文案和编号照片，不附来源或素材记录。")
     args = parser.parse_args()
     try:
-        print(json.dumps(package(args.input, args.output), ensure_ascii=False))
+        print(json.dumps(package(args.input, args.output, content_only=args.content_only), ensure_ascii=False))
     except (OSError, ValueError, TypeError) as error:
         print(f"打包失败：{error}", file=sys.stderr)
         return 1
