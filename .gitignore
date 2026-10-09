@@ -2,3 +2,4 @@
 node_modules/
 *.log
 artifacts/
+__pycache__/

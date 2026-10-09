@@ -1,0 +1,14 @@
+{
+  "name": "publish-helper",
+  "version": "0.3.0",
+  "files": {
+    "publish-helper.zip": {
+      "bytes": 26369,
+      "sha256": "713d21ab44d69143437357738708d1575316b9661376051e92eb93336853fd7c"
+    },
+    "publish-helper.md": {
+      "bytes": 11137,
+      "sha256": "6be12f030dd8e66e45463906ccabdd7963de5730d440d478854acb424ae6e413"
+    }
+  }
+}

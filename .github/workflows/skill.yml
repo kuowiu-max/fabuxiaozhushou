@@ -1,0 +1,25 @@
+name: Verify Publish Helper Skill
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify workflow
+        run: |
+          npm test
+          npm run test:materials
+          npm run check:skill

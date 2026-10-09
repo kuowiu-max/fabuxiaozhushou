@@ -1,0 +1,5 @@
+{
+  "name": "publish-helper",
+  "version": "0.3.0",
+  "description": "输入门店名，生成自然口吻的文案并获取公开评论照片。"
+}

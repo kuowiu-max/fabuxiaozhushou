@@ -1,0 +1,12 @@
+{
+  "name": "daxiaroom",
+  "owner": {"name": "kuowiu-max"},
+  "plugins": [
+    {
+      "name": "publish-helper",
+      "source": "./",
+      "skills": ["./skills/publish-helper"],
+      "description": "门店文案、图片素材与来源整理助手。"
+    }
+  ]
+}

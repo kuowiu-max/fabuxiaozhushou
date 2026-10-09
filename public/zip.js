@@ -10,9 +10,9 @@ function crc32(bytes) {
 }
 function header(size) { const bytes = new Uint8Array(size); return { bytes, view: new DataView(bytes.buffer) }; }
 // ZIP STORE format: original images are preserved byte for byte, without re-encoding.
-export async function makeZip(files) {
+export async function makeZip(files, options = {}) {
   const parts = [], central = []; let offset = 0;
-  const now = new Date();
+  const now = options.date || new Date();
   const time = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
   const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
   for (const file of files) {

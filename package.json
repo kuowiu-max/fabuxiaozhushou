@@ -1,12 +1,15 @@
 {
   "name": "publish-helper",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "手机端门店素材整理与 AI 文案工作台",
   "engines": { "node": ">=22" },
   "scripts": {
     "start": "node --env-file-if-exists=.env server.mjs",
-    "test": "node --test test/*.test.mjs"
+    "build:skill": "node scripts/build-skill.mjs",
+    "check:skill": "node scripts/build-skill.mjs --check",
+    "test": "node --test test/*.test.mjs",
+    "test:materials": "python3 -B -m unittest discover -s test -p '*_test.py'"
   }
 }
