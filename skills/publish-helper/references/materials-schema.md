@@ -36,7 +36,7 @@ python3 /技能实际目录/scripts/fetch_photos.py --input /链接实际路径.
 }
 ```
 
-kind 可以是 `user-original`（用户原图）、`authorized-original`（授权原图）或 `reference-photo`（外站参考照片，必须有出处）。不可将参考照片误标为用户自有或授权原图。图片可以留空。
+kind 可以是 `user-original`（用户原图）、`authorized-original`（授权原图）或 `reference-photo`（外站参考照片，必须有出处）。不可将参考照片误标为用户自有或授权原图。图片可以留空。类别只记录来源；`user-original` 不自动证明是本人到店拍摄，`authorized-original` 不自动满足分成活动的原创要求。下载脚本始终把外站图标为参考图，打包成功不表示符合活动资格。
 
 ```sh
 python3 /技能实际目录/scripts/package_materials.py --input /记录实际路径.json --output /新的素材包.zip
