@@ -1,22 +1,22 @@
 {
   "name": "发布小助手",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "files": {
     "发布小助手.zip": {
-      "bytes": 36873,
-      "sha256": "9d13988238041a127c33aaa9dd23ddde47ddf74f8e8d1e3c1014329c7cf1a61b"
+      "bytes": 38425,
+      "sha256": "230c7e36050c23a5f0ce08bad3500f42062e2b13d611ea9fcffc59a460edb86d"
     },
     "发布小助手.md": {
-      "bytes": 18774,
-      "sha256": "f74bff8e24d53350527170f3a0428989a236b860860bad04925067aa3ecbe805"
+      "bytes": 20051,
+      "sha256": "5f57f3560d96355fbfa90896605876534d84d16bd6571cb21f72c08ea7e94185"
     },
     "publish-helper.zip": {
-      "bytes": 36873,
-      "sha256": "9d13988238041a127c33aaa9dd23ddde47ddf74f8e8d1e3c1014329c7cf1a61b"
+      "bytes": 38425,
+      "sha256": "230c7e36050c23a5f0ce08bad3500f42062e2b13d611ea9fcffc59a460edb86d"
     },
     "publish-helper.md": {
-      "bytes": 18774,
-      "sha256": "f74bff8e24d53350527170f3a0428989a236b860860bad04925067aa3ecbe805"
+      "bytes": 20051,
+      "sha256": "5f57f3560d96355fbfa90896605876534d84d16bd6571cb21f72c08ea7e94185"
     }
   }
 }
