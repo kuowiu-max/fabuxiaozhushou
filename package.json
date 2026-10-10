@@ -1,6 +1,6 @@
 {
   "name": "publish-helper",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "description": "可导入 AI 的门店文案、评论照片及大众点评分成规则核对技能",
